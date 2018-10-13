@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+
+  library-dev:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ".:/usr/src/app"
+      - "${HOME}/.ivy2:/root/.ivy2"
+      - "${HOME}/.sbt:/root/.sbt"
+      - "${HOME}/.m2:/root/.m2"
+    links:
+      - sftp
+    environment:
+      - SFTP_USER=foo
+      - SFTP_PASSWORD=pass
+      - SFTP_HOST=sftp
+      - SFTP_PORT=22
+      - SFTP_STRICT_HOST_KEY_CHECKING=no
+
+  sftp:
+    image: atmoz/sftp
+    volumes:
+      - "./sftp-data:/home/foo/share"
+    ports:
+      - 22
+    command: foo:pass:1001
