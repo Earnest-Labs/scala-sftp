@@ -24,7 +24,6 @@ scalacOptions in (Compile, console) := scalacOptions.value filterNot Set ("-Ywar
 
 scalaVersion := "2.12.7"
 updateOptions := updateOptions.value.withCachedResolution (true)
-version := sys.env.getOrElse ("VERSION",s"${System.currentTimeMillis}-SNAPSHOT")
 publishMavenStyle := false
 dependencyOverrides += "org.typelevel" %% "cats-core" % "1.4.0" // latest cats-effect still relies on cats-core 1.3.1, but it is binary-compatible with 1.4.0
 lazy val rootSettings = Seq.empty
