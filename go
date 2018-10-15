@@ -7,7 +7,6 @@ set -e
 
 NAME=scala-sftp
 
-
 # Executables
 D=docker
 DC=docker-compose
