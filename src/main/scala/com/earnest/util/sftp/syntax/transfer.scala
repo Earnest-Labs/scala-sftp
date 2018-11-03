@@ -11,20 +11,20 @@ import cats.instances.list._
 import com.earnest.util.sftp.{LeasedInputStream, SFTPDataSource}
 import scala.language.implicitConversions
 
-final class TransferOps(val sds: SFTPDataSource) extends AnyVal {
-  def openStreamToFile[F[_]](location: String)(implicit F: Effect[F]): F[LeasedInputStream] =
-    F.delay(sds.acquire) >>= (lease => F.delay(LeasedInputStream(lease.get().channel.get(location), () => lease.release())))
+final class TransferOps[F[_]](val sds: SFTPDataSource[F]) extends AnyVal {
+  def openStreamToFile(location: String)(implicit F: Effect[F]): F[LeasedInputStream] =
+    sds.eval(F.delay(sds.acquire) >>= (lease => F.delay(LeasedInputStream(lease.get().channel.get(location), () => lease.release()))))
 
-  def openStreamsToFilesInDir[F[_]](dir: String, predicate: String => Boolean)(implicit F: Effect[F]): F[List[LeasedInputStream]] =
+  def openStreamsToFilesInDir(dir: String, predicate: String => Boolean)(implicit F: Effect[F]): F[List[LeasedInputStream]] =
     sds.lsFiles(dir) >>= (xs => xs.filter(e => predicate(e.getFilename))
       .traverse(e => openStreamToFile(dir + "/" + e.getFilename)))
 
-  def upload[F[_]](location: String, is: InputStream)(implicit F: Effect[F]): F[Unit] =
-    F.delay(sds.acquire(sess => sess.channel.put(is, location, ChannelSftp.OVERWRITE)))
+  def upload(location: String, is: InputStream)(implicit F: Effect[F]): F[Unit] =
+    sds.eval(F.delay(sds.acquire(sess => sess.channel.put(is, location, ChannelSftp.OVERWRITE))))
 }
 
 trait ToTransferOps {
-  implicit def toTransferOps(sds: SFTPDataSource): TransferOps =
+  implicit def toTransferOps[F[_]](sds: SFTPDataSource[F]): TransferOps[F] =
     new TransferOps(sds)
 }
 
