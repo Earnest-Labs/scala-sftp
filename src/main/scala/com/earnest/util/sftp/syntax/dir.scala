@@ -32,7 +32,7 @@ final class DirOps[F[_]](val sds: SFTPDataSource[F]) extends AnyVal {
 }
 
 trait ToDirOps {
-  implicit def toDirOpsF[F[_]](sds: SFTPDataSource[F]): DirOps[F] =
+  implicit def toDirOps[F[_]](sds: SFTPDataSource[F]): DirOps[F] =
     new DirOps(sds)
 }
 
