@@ -11,28 +11,28 @@ import com.earnest.util.sftp.syntax.query._
 
 import scala.language.implicitConversions
 
-final class DirOps(val sds: SFTPDataSource) extends AnyVal {
-  def changeDir[F[_]](location: String)(implicit F: Effect[F]): F[Unit] =
-    F.delay(sds.acquire(sess => sess.channel.cd(location)))
+final class DirOps[F[_]](val sds: SFTPDataSource[F]) extends AnyVal {
+  def changeDir(location: String)(implicit F: Effect[F]): F[Unit] =
+    sds.eval(F.delay(sds.acquire(sess => sess.channel.cd(location))))
 
-  def rmdir[F[_]](location: String)(implicit F: Effect[F]): F[Unit] =
-    F.delay(sds.acquire(sess => sess.channel.rmdir(location)))
+  def rmdir(location: String)(implicit F: Effect[F]): F[Unit] =
+    sds.eval(F.delay(sds.acquire(sess => sess.channel.rmdir(location))))
 
-  def rmFile[F[_]](location: String)(implicit F: Effect[F]): F[Unit] =
-    F.delay(sds.acquire(sess => sess.channel.rm(location)))
+  def rmFile(location: String)(implicit F: Effect[F]): F[Unit] =
+    sds.eval(F.delay(sds.acquire(sess => sess.channel.rm(location))))
 
-  def rmFilesInDir[F[_]](dir: String)(implicit F: Effect[F]): F[Unit] =
+  def rmFilesInDir(dir: String)(implicit F: Effect[F]): F[Unit] =
     sds.lsFiles(dir) >>= (_.traverse(e => rmFile(dir + "/" + e.getFilename)).void)
 
-  def mkdir[F[_]](location: String)(implicit F: Effect[F]): F[Unit] =
-    F.delay(sds.acquire(sess => sess.channel.mkdir(location)))
+  def mkdir(location: String)(implicit F: Effect[F]): F[Unit] =
+    sds.eval(F.delay(sds.acquire(sess => sess.channel.mkdir(location))))
 
-  def pwd[F[_]](implicit F: Effect[F]): F[String] =
-    F.delay(sds.acquire(sess => sess.channel.pwd()))
+  def pwd(implicit F: Effect[F]): F[String] =
+    sds.eval(F.delay(sds.acquire(sess => sess.channel.pwd())))
 }
 
 trait ToDirOps {
-  implicit def toDirOps(sds: SFTPDataSource): DirOps =
+  implicit def toDirOps[F[_]](sds: SFTPDataSource[F]): DirOps[F] =
     new DirOps(sds)
 }
 
