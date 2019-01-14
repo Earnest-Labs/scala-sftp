@@ -29,7 +29,7 @@ dependencyOverrides += "org.typelevel" %% "cats-core" % "1.4.0" // latest cats-e
 lazy val rootSettings = Seq.empty
 
 lazy val libraries = Seq (
-  "com.jcraft" % "jsch" % "0.1.54",
+  "com.jcraft" % "jsch" % "0.1.55",
   "io.github.andrebeat" %% "scala-pool" % "0.4.1",
   "org.typelevel" %% "cats-core" % "1.4.0",
   "org.typelevel" %% "cats-effect" % "1.0.0-1182d8c",
